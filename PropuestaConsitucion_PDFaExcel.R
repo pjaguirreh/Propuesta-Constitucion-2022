@@ -65,9 +65,23 @@ df_const2 <- df_const %>%
   mutate(texto = ifelse(str_sub(texto, 1, 1) == ".", str_sub(texto, 2, str_length(texto)), texto),
          texto = str_squish(texto))
 
-
-left_join(cap_art, df_const2) %>% View
-
 propuesta_df <- left_join(cap_art, df_const2)
 
 propuesta_df %>% write.xlsx("PropuestaConstitucion2022.xlsx")
+
+
+########## test
+a <- df_const %>% 
+  #slice(35:38) %>% 
+  mutate(
+    ind =  case_when(
+      str_detect(texto, "\n\n\n") ~ TRUE,
+      TRUE ~ FALSE),
+    texto2 = case_when(ind == TRUE ~ str_remove_all(texto, "CONSTITUCIÓN POLÍTICA DE LA REPÚBLICA")),
+    texto2 = str_squish(texto2)) %>% 
+  rowwise() %>% 
+  mutate(texto4 = paste(grep('^[a-z]', unlist(unlist(strsplit(texto2, ' '))), value = T), collapse = ' ')) %>% 
+  ungroup() %>% 
+  select(-texto2) %>% 
+  mutate(texto5 = lead(texto4, 1),
+         texto6 = paste(texto, texto5))
